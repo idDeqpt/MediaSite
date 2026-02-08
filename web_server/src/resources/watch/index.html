@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Просмотр</title>
+
+		<link rel="icon" href="/favicon.png" type="image/x-icon">
+
+		<link rel="stylesheet" href="/css/default_layout.css">
+		<link rel="stylesheet" href="/css/custom_list.css">
+		<link rel="stylesheet" href="watch/style.css">
+
+		<script type="text/javascript" src="/js/create_seasons_tree.js"></script>
+	</head>
+	<body>
+		<div class="header">
+			<a onclick="window.location.assign('/select');">К выбору фильма</a>
+		</div>
+		<div class="content">
+			<a id="film-name"></a>
+			<div id="seasons-series">
+				<select id="seasons-select" onchange="update_series_select();"></select>
+				<select id="series-select" onchange="update_video_source();"></select>
+			</div>
+			<video id="video-container" controls></video>
+		</div>
+
+		<script type="text/javascript" src="watch/on_load.js"></script>
+	</body>
+</html>

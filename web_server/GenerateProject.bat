@@ -1,0 +1,3 @@
+call GenerateModule.bat
+
+pause

@@ -1,0 +1,48 @@
+{
+	"films": [
+		{
+			"id": "cl",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "clone_wars",
+			"name": "Звёздные войны. Войны клонов",
+			"type": "serial",
+			"path": "clone-wars",
+			"poster": "clone-wars/poster.jfif",
+			"seasons": [
+				{
+					"num": "17",
+					"path": "7-sezon",
+					"series": [
+						{
+							"num": 21,
+							"path": "1-seria/07x01.mp4"
+						},
+						{
+							"num": 10,
+							"path": "1-seria/07x01.mp4"
+						}
+					]
+				},
+				{
+					"num": "7",
+					"path": "7-sezon",
+					"series": [
+						{
+							"num": 1,
+							"path": "1-seria/07x01.mp4"
+						},
+						{
+							"num": 111,
+							"path": "1-seria/07x01.mp4"
+						}
+					]
+				}
+			]
+		}
+	]
+}

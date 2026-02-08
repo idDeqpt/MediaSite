@@ -1,0 +1,23 @@
+.header a {
+	height: 100%;
+	background-color: #FFD98C;
+	cursor: pointer;
+	padding: 0px 10px;
+	transition: background-color 0.15s;
+}
+
+.header a:hover {
+	background-color: #F3E1BC;
+}
+
+.content a {
+	padding: 0px 10px;
+}
+
+.content div {
+	padding: 0px 10px;
+}
+
+.content video {
+	width: 100%;
+}
