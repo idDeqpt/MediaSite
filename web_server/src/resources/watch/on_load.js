@@ -42,7 +42,7 @@ else
 			document.getElementById("film-name").innerHTML = film.name;
 			if (film.type == "film")
 			{
-				document.getElementById("seasons-series").remove();
+				document.getElementById("block-for-serials").remove();
 				document.getElementById("video-container").setAttribute("src", "/resources/" + film.path);
 			}
 			else
