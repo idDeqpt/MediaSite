@@ -62,7 +62,7 @@ unsigned int get_file_size(const std::string& path)
 
 ByteRange get_byte_range(const std::string& range_string, unsigned int file_size)
 {
-	static const unsigned int buffer = 1024*1024*8;
+	static const unsigned int buffer = 1024*64;
 	std::string data = range_string.substr(6);
 
 	ByteRange br = {0, 0, file_size};
