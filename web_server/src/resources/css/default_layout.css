@@ -1,21 +1,29 @@
 body {
-	font-size: 24px;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 	margin: 0px;
 	background-color: #EFEABF;
+
+	font-size: 24px;
+	@media (max-aspect-ratio: 1/1) {
+		font-size: 36px;
+	}
 }
 
 .header {
-	height: 30px;
 	width: 100%;
 	display: flex;
 	flex-direction: raw;
 	border-bottom: 2px solid;
 	border-color: #DD9E1F;
 	background-color: #E0D1B3;
+
+	min-height: 30px;
+	@media (max-aspect-ratio: 1/1) {
+		min-height: 100px;
+	}
 }
 
 .content {
@@ -23,9 +31,16 @@ body {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
-	border-left: 2px solid;
-	border-right: 2px solid;
+	background-color: #FFFCDD;
+	
+	@media (max-aspect-ratio: 1/1) {
+		width: 100%;
+	}
+
+	@media (min-aspect-ratio: 1/1) {
+		border-left: 2px solid;
+		border-right: 2px solid;
+	}
 	border-bottom: 2px solid;
 	border-color: #DD9E1F;
-	background-color: #FFFCDD;
 }

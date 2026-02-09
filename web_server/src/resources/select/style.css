@@ -35,9 +35,13 @@
 }
 
 .content > div > img {
-	max-width: 20%;
 	border-right: 2px solid;
 	border-color: #DD9E1F;
+
+	max-width: 20%;
+	@media (max-aspect-ratio: 1/1) {
+		max-width: 40%;
+	}
 }
 
 .content > div > div {

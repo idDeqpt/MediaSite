@@ -1,3 +1,1 @@
 xcopy /s ".\src\resources\" ".\bin\Debug\resources\" /Y /e /i
-
-pause

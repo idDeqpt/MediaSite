@@ -21,7 +21,6 @@ function update_series_select() {
 
 function update_video_source() {
 	let season = film.seasons.filter(item => (item.num == seasons_select.value))[0];
-	console.log(season);
 	let seria = season.series.filter(item => (item.num == series_select.value))[0];
 	document.getElementById("video-container").setAttribute("src", "/resources/" + film.path + "/" + season.path + "/" + seria.path);
 }
