@@ -1,5 +1,8 @@
 .header > a {
 	padding: 0px 10px;
+
+	border-right: 2px solid;
+	border-color: #DD9E1F;
 }
 
 .content {

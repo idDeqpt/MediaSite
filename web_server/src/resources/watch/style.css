@@ -1,6 +1,10 @@
 .header a {
 	height: 100%;
 	background-color: #FFD98C;
+
+	border-right: 2px solid;
+	border-color: #DD9E1F;
+
 	cursor: pointer;
 	padding: 0px 10px;
 	transition: background-color 0.15s;
@@ -20,4 +24,6 @@
 
 .content video {
 	width: 100%;
+	border-top: 2px solid;
+	border-color: #DD9E1F;
 }
