@@ -9,7 +9,7 @@ include(FetchContent)
 FetchContent_Declare(
     network
     GIT_REPOSITORY "https://github.com/idDeqpt/Network.git"
-    GIT_TAG main  # или конкретная версия
+    GIT_TAG main
 )
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared library" FORCE)
