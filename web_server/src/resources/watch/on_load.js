@@ -42,7 +42,10 @@ else
 			document.title = film.name;
 			document.getElementById("film-name").innerHTML = film.name;
 			if (film.type == "film")
+			{
 				document.getElementById("seasons-series").remove();
+				document.getElementById("video-container").setAttribute("src", "/resources/" + film.path);
+			}
 			else
 			{
 				film.seasons.sort((a, b) => (a.num - b.num));
