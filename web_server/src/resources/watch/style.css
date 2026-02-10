@@ -1,27 +1,29 @@
-.header > a {
-	background-color: #FFD98C;
-
-	border-right: 2px solid;
-	border-color: #DD9E1F;
-
-	cursor: pointer;
-	padding: 0px 10px;
-	transition: background-color 0.15s;
-}
-
-.header > a:hover {
-	background-color: #F3E1BC;
-}
-
-.content > a {
-	padding: 0px 10px;
+.content {
+	gap: 10px;
+	padding-top: 10px;
 }
 
 .content > div {
 	width: 100%;
 }
 
-.content > div > div {
+
+.content-data {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.content-data > img {
+	min-width: 230px;
+	width: 20%;
+	border: 1px solid;
+	border-radius: 10px;
+	border-color: #DD9E1F;
+}
+
+
+.content-serials-data > div {
 	display: flex;
 	flex-direction: raw;
 	justify-content: space-between;
@@ -37,7 +39,7 @@
 	}
 }
 
-.content > div > div > select {
+.content-serials-data > div > select {
 	width: 100%;
 	height: 2em;
 	outline: none;
@@ -48,17 +50,18 @@
 	}
 }
 
-.content > div > div > select:first-child {
+.content-serials-data > div > select:first-child {
 	border-right: 2px solid;
 	border-color: #DD9E1F;
 }
 
-.content > div > div > select:last-child {
+.content-serials-data > div > select:last-child {
 	border-left: 2px solid;
 	border-color: #DD9E1F;
 }
 
-.content > video {
+
+.conent-video-block > video {
 	width: 100%;
 	border-top: 2px solid;
 	border-color: #DD9E1F;

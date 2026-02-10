@@ -24,7 +24,24 @@ body {
 	}
 }
 
+.header > a {
+	font-size: 1.2em;
+	background-color: #FFD98C;
+
+	border-right: 1px solid;
+	border-color: #DD9E1F;
+
+	cursor: pointer;
+	padding: 0px 10px;
+	transition: background-color 0.15s;
+}
+
+.header > a:hover {
+	background-color: #F3E1BC;
+}
+
 .content {
+	width: 95%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;

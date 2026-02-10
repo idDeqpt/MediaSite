@@ -9,21 +9,31 @@
 		<link rel="stylesheet" href="/css/custom_list.css">
 		<link rel="stylesheet" href="watch/style.css">
 
+		<script type="text/javascript" src="/js/display_header.js"></script>
 		<script type="text/javascript" src="/js/create_seasons_tree.js"></script>
 	</head>
 	<body>
-		<div class="header">
-			<a onclick="window.location.assign('/catalog');">Название сайта</a>
+		<div id="header" class="header">
+			<script type="text/javascript">display_header();</script>
 		</div>
+
 		<div class="content">
-			<a id="film-name"></a>
-			<div id="block-for-serials">
-				<div id="seasons-series">
-					<select id="seasons-select" onchange="update_series_select();"></select>
-					<select id="series-select" onchange="update_video_source();"></select>
+			<div class="content-data">
+				<img id="poster">
+				<div>
+					<a id="film-name"></a>
 				</div>
 			</div>
-			<video id="video-container" controls></video>
+			
+			<div class="conent-video-block">
+				<div id="block-for-serials" class="content-serials-data">
+					<div id="seasons-series">
+						<select id="seasons-select" onchange="update_series_select();"></select>
+						<select id="series-select" onchange="update_video_source();"></select>
+					</div>
+				</div>
+				<video id="video-container" controls></video>
+			</div>
 		</div>
 
 		<script type="text/javascript" src="watch/on_load.js"></script>

@@ -40,6 +40,7 @@ else
 		{
 			document.title = film.name;
 			document.getElementById("film-name").innerHTML = film.name;
+			document.getElementById("poster").setAttribute("src", "/resources/" + film.poster);
 			if (film.type == "film")
 			{
 				document.getElementById("block-for-serials").remove();

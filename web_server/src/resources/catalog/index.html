@@ -9,10 +9,14 @@
 		<link rel="stylesheet" href="/css/custom_list.css">
 		<link rel="stylesheet" href="select/style.css">
 
+		<script type="text/javascript" src="/js/display_header.js"></script>
 		<script type="text/javascript" src="/js/create_seasons_tree.js"></script>
 	</head>
 	<body>
-		<div class="header"><a onclick="">Главная</a></div>
+		<div id="header" class="header">
+			<script type="text/javascript">display_header();</script>
+		</div>
+		
 		<div id="content-container" class="content"></div>
 
 		<script type="text/javascript" src="select/on_load.js"></script>
