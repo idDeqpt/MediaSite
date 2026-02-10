@@ -43,6 +43,97 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "cl1",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl2",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl3",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl4",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl41",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl42",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl43",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl43",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl431",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl432",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl433",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl434",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
+		},
+		{
+			"id": "cl435",
+			"name": "test film",
+			"type": "film",
+			"path": "clone-wars/7-sezon/1-seria/07x01.mp4",
+			"poster": "clone-wars/poster.jfif"
 		}
 	]
 }
