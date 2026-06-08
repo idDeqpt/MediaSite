@@ -16,7 +16,9 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared library" FORCE)
 
 FetchContent_MakeAvailable(network)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    src/Server.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE network)
 
