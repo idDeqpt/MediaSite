@@ -1,1 +1,1 @@
-start "web server" ".\bin\Debug\messenger_server.exe" 80
+start "web server" ".\bin\Debug\messenger_server.exe" 443

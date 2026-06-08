@@ -10,6 +10,20 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <vector>
+
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/pkcs12.h>
+
+
+#ifdef _WIN32
+	#define WIN(exp) exp
+	#define NIX(exp)
+#else
+	#define WIN(exp)
+	#define NIX(exp) exp
+#endif
 
 
 namespace app
@@ -22,6 +36,9 @@ struct ByteRange
 	unsigned int total;
 };
 
+
+bool is_request_complete(const std::string& data, int& content_length);
+
 std::string get_content_type(const std::string& path);
 unsigned int get_file_size(const std::string& path);
 ByteRange get_byte_range(const std::string& range_string, unsigned int file_size);
@@ -29,15 +46,36 @@ ByteRange get_byte_range(const std::string& range_string, unsigned int file_size
 std::unique_ptr<std::string> load_file_data_ptr(const std::string& path);
 std::unique_ptr<std::string> partially_load_file_data_ptr(const std::string& path, ByteRange byte_range);
 
-void request_handler(net::TCPServer* server, int client_socket);
-
 
 
 Server::Server(const std::string& work_dir):
 	m_work_directory(work_dir),
 	net::TCPServer()
 {
-	setRequestHandler(app::request_handler);
+	wolfSSL_Init();
+
+	m_ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+	if (!m_ctx)
+	{
+		std::cerr << "Failed to create SSL_CTX" << std::endl;
+		return;
+	}
+
+	if (wolfSSL_CTX_use_certificate_chain_file(m_ctx, std::string(m_work_directory + "/certs/full_certificate_chain.pem").c_str()) != SSL_SUCCESS)
+		std::cerr << "Failed to load certificate PEM" << std::endl;
+	if (wolfSSL_CTX_use_PrivateKey_file(m_ctx, std::string(m_work_directory + "/certs/private_key.pem").c_str(), SSL_FILETYPE_PEM) != SSL_SUCCESS)
+		std::cerr << "Failed to load private key PEM" << std::endl;
+}
+
+Server::~Server()
+{
+	if (m_ctx)
+	{
+		wolfSSL_CTX_free(m_ctx);
+		m_ctx = nullptr;
+	}
+
+	wolfSSL_Cleanup();
 }
 
 const std::string& Server::getWorkDirectory()
@@ -45,6 +83,175 @@ const std::string& Server::getWorkDirectory()
 	return m_work_directory;
 }
 
+
+
+void app::Server::request_handler(int client_socket)
+{
+	WOLFSSL* ssl = wolfSSL_new(m_ctx);
+	if (!ssl)
+	{
+		std::cerr << "wolfSSL_new failed on socket " << client_socket << std::endl;
+		return;
+	}
+	m_ssl_map[client_socket] = ssl;
+	wolfSSL_set_fd(ssl, client_socket);
+	WIN(
+		u_long mode = 0;
+		ioctlsocket(client_socket, FIONBIO, &mode);
+	)
+	NIX(
+		int flags = fcntl(client_socket, F_GETFL, 0);
+		fcntl(client_socket, F_SETFL, flags & ~O_NONBLOCK);
+	)
+
+	int accept_res = wolfSSL_accept(ssl);
+	if (accept_res != SSL_SUCCESS)
+	{
+		std::cerr << "TLS handshake failed on socket " << client_socket << std::endl;
+		wolfSSL_free(ssl);
+		return;
+	}
+
+	session_handler(client_socket);
+
+	wolfSSL_free(ssl);
+	m_ssl_map.erase(client_socket);
+}
+
+void app::Server::session_handler(int client_socket)
+{
+	net::HTTPResponse response;
+	net::HTTPRequest req(this->recv(client_socket));
+	net::URI uri(req.start_line[1]);
+	std::string path = uri.toString(false);
+
+	if (path.find(".") == std::string::npos)
+		path += "/index.html";
+
+	if (req.headers.find("Range") == req.headers.end())
+	{
+		std::unique_ptr<std::string> data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources" + path);
+		if (data_ptr == nullptr)
+		{
+			response.start_line[1] = "404";
+			response.start_line[2] = "NOT FOUND";
+			data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources/404/index.html");
+		}
+		else
+		{
+			response.start_line[1] = "200";
+			response.start_line[2] = "OK";
+		}
+		response.body = *data_ptr;
+	}
+	else
+	{
+		std::string file_path = this->getWorkDirectory() + "resources" + path;
+		ByteRange range = get_byte_range(req.headers["Range"], get_file_size(file_path));
+		std::unique_ptr<std::string> data_ptr = partially_load_file_data_ptr(file_path, range);
+		if (data_ptr == nullptr)
+		{
+			response.start_line[1] = "404";
+			response.start_line[2] = "NOT FOUND";
+			data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources/404/index.html");
+		}
+
+		response.start_line[1] = "206";
+		response.start_line[2] = "PARTIAL CONTENT";
+		response.headers["Connection"] = "keep-alive";
+		response.headers["Cache-Control"] = "no-cache";
+		response.headers["Accept-Ranges"] = "bytes";
+		response.headers["Content-Range"] = "bytes " + std::to_string(range.start) + "-" + std::to_string(range.end) + "/" + std::to_string(range.total);
+		response.body = *data_ptr;
+	}
+
+	
+	response.start_line[0] = "HTTP/1.1";
+	
+	response.headers["Version"] = "HTTP/1.1";
+	response.headers["Content-Type"] = get_content_type(path);
+	response.headers["Content-Length"] = std::to_string(response.body.length());
+
+	this->send(client_socket, response.toString());
+}
+
+
+std::string app::Server::recv_handler(int socket)
+{
+    auto it = m_ssl_map.find(socket);
+    if (it == m_ssl_map.end())
+    {
+        std::cerr << "No SSL object for socket " << socket << std::endl;
+        return "";
+    }
+    WOLFSSL* ssl = it->second;
+
+    static constexpr int max_buffer = 1024;
+    char buf[max_buffer];
+    std::string result;
+    int content_length = -1;
+
+    while (true)
+    {
+        int n = wolfSSL_read(ssl, buf, max_buffer);
+        if (n > 0)
+        {
+            result.append(buf, n);
+            if (is_request_complete(result, content_length))
+                break;
+        }
+        else if (n == 0)
+            break; // клиент закрыл соединение
+        else
+        {
+            int err = wolfSSL_get_error(ssl, n);
+            std::cerr << "wolfSSL_read error: " << err << std::endl;
+            return "";
+        }
+    }
+    return result;
+}
+
+void app::Server::send_handler(int socket, const std::string& message)
+{
+	auto it = m_ssl_map.find(socket);
+	if (it == m_ssl_map.end())
+	{
+		std::cerr << "No SSL object for socket " << socket << std::endl;
+		return;
+	}
+	WOLFSSL* ssl = it->second;
+
+	int res = wolfSSL_write(ssl, message.c_str(), int(message.size()));
+	if (res != (int)message.size())
+		std::cerr << "wolfSSL_write failed on socket " << socket << std::endl;
+}
+
+
+
+bool is_request_complete(const std::string& data, int& content_length)
+{
+	if (content_length == -1) {
+		unsigned int pos = data.find("Content-Length:");
+		if (pos == std::string::npos)
+			content_length = 0;
+		else {
+			pos += 15;
+			unsigned int end = data.find("\r\n", pos);
+			if (end != std::string::npos)
+				content_length = std::stoi(data.substr(pos, end - pos));
+		}
+	}
+	if (content_length == 0) {
+		return data.find("\r\n\r\n") != std::string::npos;
+	} else {
+		unsigned int headers_end = data.find("\r\n\r\n");
+		if (headers_end == std::string::npos)
+			return false;
+		unsigned int body_received = data.size() - headers_end - 4;
+		return body_received >= (unsigned int)content_length;
+	}
+}
 
 
 std::string get_content_type(const std::string& path)
@@ -127,73 +334,14 @@ std::unique_ptr<std::string> partially_load_file_data_ptr(const std::string& pat
 		return std::unique_ptr<std::string>(nullptr);
 
 	file.seekg(byte_range.start, std::ios::beg);
-    
-    std::string result(byte_range.end - byte_range.start + 1, '\0');
-    file.read(&(result)[0], byte_range.end - byte_range.start + 1);
+	
+	std::string result(byte_range.end - byte_range.start + 1, '\0');
+	file.read(&(result)[0], byte_range.end - byte_range.start + 1);
 
-    result.resize(file.gcount());
+	result.resize(file.gcount());
 
 	file.close();
 	return std::make_unique<std::string>(result);
-}
-
-
-void request_handler(net::TCPServer* server, int client_socket)
-{
-	Server* s = static_cast<Server*>(server);
-	net::HTTPResponse response;
-	net::HTTPRequest req(s->recv(client_socket));
-	net::URI uri(req.start_line[1]);
-	std::string path = uri.toString(false);
-
-	if (path.find(".") == std::string::npos)
-		path += "/index.html";
-
-	if (req.headers.find("Range") == req.headers.end())
-	{
-		std::unique_ptr<std::string> data_ptr = load_file_data_ptr(s->getWorkDirectory() + "resources" + path);
-		if (data_ptr == nullptr)
-		{
-			response.start_line[1] = "404";
-			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(s->getWorkDirectory() + "resources/404/index.html");
-		}
-		else
-		{
-			response.start_line[1] = "200";
-			response.start_line[2] = "OK";
-		}
-		response.body = *data_ptr;
-	}
-	else
-	{
-		std::string file_path = s->getWorkDirectory() + "resources" + path;
-		ByteRange range = get_byte_range(req.headers["Range"], get_file_size(file_path));
-		std::unique_ptr<std::string> data_ptr = partially_load_file_data_ptr(file_path, range);
-		if (data_ptr == nullptr)
-		{
-			response.start_line[1] = "404";
-			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(s->getWorkDirectory() + "resources/404/index.html");
-		}
-
-		response.start_line[1] = "206";
-		response.start_line[2] = "PARTIAL CONTENT";
-		response.headers["Connection"] = "keep-alive";
-		response.headers["Cache-Control"] = "no-cache";
-		response.headers["Accept-Ranges"] = "bytes";
-		response.headers["Content-Range"] = "bytes " + std::to_string(range.start) + "-" + std::to_string(range.end) + "/" + std::to_string(range.total);
-		response.body = *data_ptr;
-	}
-
-	
-	response.start_line[0] = "HTTP/1.1";
-	
-	response.headers["Version"] = "HTTP/1.1";
-	response.headers["Content-Type"] = get_content_type(path);
-	response.headers["Content-Length"] = std::to_string(response.body.length());
-
-	s->send(client_socket, response.toString());
 }
 
 } //namespace app
