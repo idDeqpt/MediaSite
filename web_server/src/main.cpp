@@ -17,19 +17,32 @@
 
 int main(int argc, char* argv[])
 {
-	std::string path = argv[0];
-	int last_slash = path.rfind(
-		WIN("\\")
-		NIX("/")
-	);
+	unsigned int argn = 1;
+
+	std::string certs_dir = "";
+	if (argc > argn)
+	{
+		certs_dir += argv[argn];
+		if (certs_dir.size() && (certs_dir[certs_dir.size() - 1] != '/')) certs_dir += '/';
+	}
+	argn++;
+
+	std::string res_dir = "";
+	if (argc > argn)
+	{
+		res_dir += argv[argn];
+		if (res_dir.size() && (res_dir[res_dir.size() - 1] != '/')) res_dir += '/';
+	}
+	argn++;
 
 	int port = -1;
-	if (argc > 1)
+	if (argc > argn)
 		try
 		{
-			port = std::stoi(std::string(argv[1]));
+			port = std::stoi(std::string(argv[argn]));
 			std::cout << "Port: " << port << std::endl;
 		} catch (...) {}
+	argn++;
 
 	while (port < 0)
 	{
@@ -46,7 +59,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	app::Server server(path.substr(0, last_slash + 1));
+	app::Server server(certs_dir, res_dir);
 	int init_status = server.init(port);
 
 	if (!server.start())

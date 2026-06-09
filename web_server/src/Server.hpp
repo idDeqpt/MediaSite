@@ -13,13 +13,12 @@ namespace app
 	class Server : public net::TCPServer
 	{
 	public:
-		Server(const std::string& work_dir);
+		Server(const std::string& certs_dir, const std::string& res_dir);
 		~Server();
 
-		const std::string& getWorkDirectory();
-
 	protected:
-		std::string  m_work_directory;
+		std::string  m_resources_directory;
+		std::string  m_certificates_directory;
 		WOLFSSL_CTX* m_ctx;
 		std::unordered_map<int, WOLFSSL*> m_ssl_map;
 

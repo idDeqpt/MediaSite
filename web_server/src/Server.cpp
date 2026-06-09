@@ -48,8 +48,9 @@ std::unique_ptr<std::string> partially_load_file_data_ptr(const std::string& pat
 
 
 
-Server::Server(const std::string& work_dir):
-	m_work_directory(work_dir),
+Server::Server(const std::string& certs_dir, const std::string& res_dir):
+	m_certificates_directory(certs_dir),
+	m_resources_directory(res_dir),
 	net::TCPServer()
 {
 	wolfSSL_Init();
@@ -61,9 +62,9 @@ Server::Server(const std::string& work_dir):
 		return;
 	}
 
-	if (wolfSSL_CTX_use_certificate_chain_file(m_ctx, std::string(m_work_directory + "/certs/full_certificate_chain.pem").c_str()) != SSL_SUCCESS)
+	if (wolfSSL_CTX_use_certificate_chain_file(m_ctx, std::string(m_certificates_directory + "full_certificate_chain.pem").c_str()) != SSL_SUCCESS)
 		std::cerr << "Failed to load certificate PEM" << std::endl;
-	if (wolfSSL_CTX_use_PrivateKey_file(m_ctx, std::string(m_work_directory + "/certs/private_key.pem").c_str(), SSL_FILETYPE_PEM) != SSL_SUCCESS)
+	if (wolfSSL_CTX_use_PrivateKey_file(m_ctx, std::string(m_certificates_directory + "private_key.pem").c_str(), SSL_FILETYPE_PEM) != SSL_SUCCESS)
 		std::cerr << "Failed to load private key PEM" << std::endl;
 }
 
@@ -76,11 +77,6 @@ Server::~Server()
 	}
 
 	wolfSSL_Cleanup();
-}
-
-const std::string& Server::getWorkDirectory()
-{
-	return m_work_directory;
 }
 
 
@@ -126,16 +122,19 @@ void app::Server::session_handler(int client_socket)
 	std::string path = uri.toString(false);
 
 	if (path.find(".") == std::string::npos)
-		path += "/index.html";
+	{
+		char last_char = path[(path.size()) ? (path.size() - 1) : 0];
+		path += (last_char == '/') ? "index.html" : "/index.html";
+	}
 
 	if (req.headers.find("Range") == req.headers.end())
 	{
-		std::unique_ptr<std::string> data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources" + path);
+		std::unique_ptr<std::string> data_ptr = load_file_data_ptr(m_resources_directory + path);
 		if (data_ptr == nullptr)
 		{
 			response.start_line[1] = "404";
 			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources/404/index.html");
+			data_ptr = load_file_data_ptr(m_resources_directory + "404/index.html");
 		}
 		else
 		{
@@ -146,14 +145,14 @@ void app::Server::session_handler(int client_socket)
 	}
 	else
 	{
-		std::string file_path = this->getWorkDirectory() + "resources" + path;
+		std::string file_path = m_resources_directory + path;
 		ByteRange range = get_byte_range(req.headers["Range"], get_file_size(file_path));
 		std::unique_ptr<std::string> data_ptr = partially_load_file_data_ptr(file_path, range);
 		if (data_ptr == nullptr)
 		{
 			response.start_line[1] = "404";
 			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(this->getWorkDirectory() + "resources/404/index.html");
+			data_ptr = load_file_data_ptr(m_resources_directory + "404/index.html");
 		}
 
 		response.start_line[1] = "206";
