@@ -279,34 +279,31 @@ unsigned int get_file_size(const std::string& path)
 
 ByteRange get_byte_range(const std::string& range_string, unsigned int file_size)
 {
-	static const unsigned int chunk_buffer = 1024*64;
-	static const unsigned int max_buffer = 1024*1024;
-	std::string data = range_string.substr(6);
+	static const unsigned int max_buffer = 1024*512;
+	std::string data = range_string.substr(6); //skip "bytes="
 
 	ByteRange br = {0, 0, file_size};
-	if (data.front() == '-')
+	if (data.front() == '-') //last N bytes
 	{
-		int num = stoi(data.substr(1));
-		num = (num > chunk_buffer) ? chunk_buffer : num;
-		br.start = (num < file_size) ? (file_size - num - 1) : 0;
+		int count = stoi(data.substr(1));
+		br.start = (count < file_size) ? (file_size - count - 1) : 0;
 		br.end = file_size - 1;
 	}
-	else if (data.back() == '-')
+	else if (data.back() == '-') //all bytes starting from N
 	{
-		int num = stoi(data.substr(0, data.length() - 1));
-		br.start = num;
-		br.end = ((num + chunk_buffer - 1) < file_size) ? (num + chunk_buffer - 1) : (file_size - 1);
+		int first = stoi(data.substr(0, data.length() - 1));
+		br.start = (first < file_size) ? first : (file_size - 1);
+		br.end = file_size - 1;
 	}
-	else
+	else //bytes from Left to Right values
 	{
 		unsigned int mark = data.find('-');
 		unsigned int start = stoi(data.substr(0, mark));
 		unsigned int end = stoi(data.substr(mark + 1));
 		br.start = (start < file_size) ? start : (file_size - 1);
-		br.end = (end < file_size) ? end : (file_size - 1);
+		br.end = (end < br.start) ? (br.start + 1) : ((end < file_size) ? end : (file_size - 1));
 	}
-	int total_bytes = br.end - br.start;
-	br.end = (total_bytes < max_buffer) ? br.end : (br.start + max_buffer - 1);
+	br.end = ((br.end - br.start) < max_buffer) ? br.end : (br.start + max_buffer);
 
 	return br;
 }
