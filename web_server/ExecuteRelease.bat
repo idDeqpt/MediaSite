@@ -1,0 +1,1 @@
+start "web server" ".\bin\Release\messenger_server.exe" "certs/" "src/resources/" 443
