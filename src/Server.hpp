@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <string>
 
-class WOLFSSL_CTX;
-class WOLFSSL;
+struct WOLFSSL_CTX;
+struct WOLFSSL;
 
 namespace app
 {
