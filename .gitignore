@@ -1,5 +1,5 @@
-/web_server/bin/
-/web_server/build/
-/web_server/certs/
+/bin/
+/build/
+/certs/
 /**/*.mp4
 /**/*.mkv
