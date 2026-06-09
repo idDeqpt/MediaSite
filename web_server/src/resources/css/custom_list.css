@@ -1,0 +1,16 @@
+.custom-list li {
+	margin-bottom: 0.5em;
+}
+
+.dropdown-li {
+	list-style: disclosure-closed;
+	cursor: pointer;
+}
+
+.dropdown-li:has(> details[open]) {
+	list-style: disclosure-open;
+}
+
+.dropdown-li details summary {
+	list-style: none;
+}
