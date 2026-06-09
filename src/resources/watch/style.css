@@ -1,9 +1,6 @@
 .content {
-	width: 100%;
 	gap: 10px;
-	padding-top: 10px;
 }
-
 
 .content-data {
 	display: grid;
@@ -47,7 +44,7 @@
 	border-color: #DD9E1F;
 
 	@media (max-aspect-ratio: 1/1) {
-		width: 70%;
+		width: 60%;
 	}
 }
 
@@ -88,4 +85,7 @@
 
 .conent-video-block > video {
 	width: 100%;
+	aspect-ratio: 16 / 6;
+	object-fit: contain;
+	background-color: #000;
 }
