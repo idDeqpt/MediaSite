@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.14)
 
 set(PROJECT_NAME messenger_server)
 
@@ -22,6 +22,7 @@ FetchContent_Declare(
     wolfssl
     GIT_REPOSITORY "https://github.com/wolfSSL/wolfssl"
     GIT_TAG v5.9.1-stable
+    GIT_SHALLOW TRUE
 )
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared library" FORCE)
