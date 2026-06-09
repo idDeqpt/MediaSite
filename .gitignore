@@ -1,5 +1,6 @@
 /bin/
 /build/
 /certs/
+/src/resources/resources/
 /**/*.mp4
 /**/*.mkv
