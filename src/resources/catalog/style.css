@@ -14,6 +14,11 @@
 	column-gap: 20px;
 	margin: 20px 0px;
 	border: none;
+
+	@media (max-aspect-ratio: 1/1) {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
 }
 
 .content > div {
