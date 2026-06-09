@@ -43,6 +43,9 @@ std::string get_content_type(const std::string& path);
 unsigned int get_file_size(const std::string& path);
 ByteRange get_byte_range(const std::string& range_string, unsigned int file_size);
 
+void full_file_load_handler(net::HTTPResponse& response, const std::string& resources_dir, const std::string& file_path);
+void range_file_load_handler(net::HTTPRequest& request, net::HTTPResponse& response, const std::string& resources_dir, const std::string& file_path);
+
 std::unique_ptr<std::string> load_file_data_ptr(const std::string& path);
 std::unique_ptr<std::string> partially_load_file_data_ptr(const std::string& path, ByteRange byte_range);
 
@@ -128,41 +131,15 @@ void app::Server::session_handler(int client_socket)
 	}
 
 	if (req.headers.find("Range") == req.headers.end())
-	{
-		std::unique_ptr<std::string> data_ptr = load_file_data_ptr(m_resources_directory + path);
-		if (data_ptr == nullptr)
-		{
-			response.start_line[1] = "404";
-			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(m_resources_directory + "404/index.html");
-		}
+		if (get_file_size(m_resources_directory + path) < 1024*1024*100) //100MB
+			full_file_load_handler(response, m_resources_directory, path);
 		else
 		{
-			response.start_line[1] = "200";
-			response.start_line[2] = "OK";
+			req.headers["Range"] = "bytes=0-";
+			range_file_load_handler(req, response, m_resources_directory, path);
 		}
-		response.body = *data_ptr;
-	}
 	else
-	{
-		std::string file_path = m_resources_directory + path;
-		ByteRange range = get_byte_range(req.headers["Range"], get_file_size(file_path));
-		std::unique_ptr<std::string> data_ptr = partially_load_file_data_ptr(file_path, range);
-		if (data_ptr == nullptr)
-		{
-			response.start_line[1] = "404";
-			response.start_line[2] = "NOT FOUND";
-			data_ptr = load_file_data_ptr(m_resources_directory + "404/index.html");
-		}
-
-		response.start_line[1] = "206";
-		response.start_line[2] = "PARTIAL CONTENT";
-		response.headers["Connection"] = "keep-alive";
-		response.headers["Cache-Control"] = "no-cache";
-		response.headers["Accept-Ranges"] = "bytes";
-		response.headers["Content-Range"] = "bytes " + std::to_string(range.start) + "-" + std::to_string(range.end) + "/" + std::to_string(range.total);
-		response.body = *data_ptr;
-	}
+		range_file_load_handler(req, response, m_resources_directory, path);
 
 	
 	response.start_line[0] = "HTTP/1.1";
@@ -200,7 +177,7 @@ std::string app::Server::recv_handler(int socket)
                 break;
         }
         else if (n == 0)
-            break; // клиент закрыл соединение
+            break;
         else
         {
             int err = wolfSSL_get_error(ssl, n);
@@ -230,20 +207,23 @@ void app::Server::send_handler(int socket, const std::string& message)
 
 bool is_request_complete(const std::string& data, int& content_length)
 {
-	if (content_length == -1) {
+	if (content_length == -1)
+	{
 		unsigned int pos = data.find("Content-Length:");
 		if (pos == std::string::npos)
 			content_length = 0;
-		else {
+		else
+		{
 			pos += 15;
 			unsigned int end = data.find("\r\n", pos);
 			if (end != std::string::npos)
 				content_length = std::stoi(data.substr(pos, end - pos));
 		}
 	}
-	if (content_length == 0) {
+	if (content_length == 0)
 		return data.find("\r\n\r\n") != std::string::npos;
-	} else {
+	else
+	{
 		unsigned int headers_end = data.find("\r\n\r\n");
 		if (headers_end == std::string::npos)
 			return false;
@@ -306,6 +286,45 @@ ByteRange get_byte_range(const std::string& range_string, unsigned int file_size
 	br.end = ((br.end - br.start) < max_buffer) ? br.end : (br.start + max_buffer);
 
 	return br;
+}
+
+
+void full_file_load_handler(net::HTTPResponse& response, const std::string& resources_dir, const std::string& file_path)
+{
+	std::unique_ptr<std::string> data_ptr = load_file_data_ptr(resources_dir + file_path);
+	if (data_ptr == nullptr)
+	{
+		response.start_line[1] = "404";
+		response.start_line[2] = "NOT FOUND";
+		data_ptr = load_file_data_ptr(resources_dir + "404/index.html");
+	}
+	else
+	{
+		response.start_line[1] = "200";
+		response.start_line[2] = "OK";
+	}
+	response.body = *data_ptr;
+}
+
+void range_file_load_handler(net::HTTPRequest& request, net::HTTPResponse& response, const std::string& resources_dir, const std::string& file_path)
+{
+	std::string full_file_path = resources_dir + file_path;
+	ByteRange range = get_byte_range(request.headers["Range"], get_file_size(full_file_path));
+	std::unique_ptr<std::string> data_ptr = partially_load_file_data_ptr(full_file_path, range);
+	if (data_ptr == nullptr)
+	{
+		response.start_line[1] = "404";
+		response.start_line[2] = "NOT FOUND";
+		data_ptr = load_file_data_ptr(resources_dir + "404/index.html");
+	}
+
+	response.start_line[1] = "206";
+	response.start_line[2] = "PARTIAL CONTENT";
+	response.headers["Connection"] = "keep-alive";
+	response.headers["Cache-Control"] = "no-cache";
+	response.headers["Accept-Ranges"] = "bytes";
+	response.headers["Content-Range"] = "bytes " + std::to_string(range.start) + "-" + std::to_string(range.end) + "/" + std::to_string(range.total);
+	response.body = *data_ptr;
 }
 
 
