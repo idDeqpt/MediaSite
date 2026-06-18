@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-set(PROJECT_NAME messenger_server)
+set(PROJECT_NAME MediaSite)
 
 project(${PROJECT_NAME} CXX)
 
@@ -33,7 +33,8 @@ FetchContent_MakeAvailable(wolfssl)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/CommandLineOptions.cpp
-    src/Server.cpp
+    src/HTTPServer.cpp
+    src/HTTPSServer.cpp
     src/tools.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE network)

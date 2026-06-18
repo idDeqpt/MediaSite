@@ -3,7 +3,9 @@
 
 #include <Network/ServerSessionData.hpp>
 #include <Network/Timer.hpp>
-#include "Server.hpp"
+
+#include "HTTPServer.hpp"
+#include "HTTPSServer.hpp"
 #include "CommandLineOptions.hpp"
 
 
@@ -34,8 +36,6 @@ int main(int argc, char* argv[])
 		system("pause");
 		return -1;
 	}
-
-	unsigned int argn = 1;
 
 	const std::string* argument = cli_options.getArgument(certificates_option);
 	std::string certs_dir = "";
@@ -72,23 +72,26 @@ int main(int argc, char* argv[])
 		return -2;
 	}
 
-	app::Server server(certs_dir, res_dir);
-	int init_status = server.init(port);
+	net::TCPServer* server = (use_tls) ?
+		new app::HTTPSServer(certs_dir, res_dir) :
+		new app::HTTPServer(res_dir);
 
-	if (!server.start())
+	int init_status = server->init(port);
+
+	if (!server->start())
 	{
-		std::cout << "Server start incompleted: " << init_status << std::endl;
-		return 0;
+		std::cout << "Server start incompleted! Status: " << init_status << std::endl;
+		return -3;
 	}
 	std::cout << "Server start completed on port " << port << " " << (use_tls ? "with" : "without") << " TLS" << "\n------------------------------------------------\n";
 
 	Timer timer;
 	while(true)
 	{
-		if (server.hasNewSessionData())
+		if (server->hasNewSessionData())
 		{
 			static constexpr char* session_data_types[] = {"Open", "Close", "RECV", "Send"};
-			net::ServerSessionData session_data = server.getNextSessionData();
+			net::ServerSessionData session_data = server->getNextSessionData();
 			std::string data_str = session_data.getText();
 			if (data_str.length() > 1024) data_str.resize(1024);
 			std::cout << session_data_types[session_data.getType()] << " " << session_data.getId() << " " << session_data.getTime() << "s:" << std::endl
@@ -97,6 +100,8 @@ int main(int argc, char* argv[])
 		}
 		timer.sleep(50);
 	}
+
+	delete server;
 
 	system("pause");
 	return 0;

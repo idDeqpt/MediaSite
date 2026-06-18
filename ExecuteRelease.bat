@@ -1,1 +1,1 @@
-start "web server" ".\bin\Release\messenger_server.exe" -c "certs/" -r "src/resources/" -p 443
+start "MediaSite" ".\bin\Release\MediaSite.exe" -c "certs/" -r "src/resources/" -p 443
