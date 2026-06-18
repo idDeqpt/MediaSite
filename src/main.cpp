@@ -4,6 +4,7 @@
 #include <Network/ServerSessionData.hpp>
 #include <Network/Timer.hpp>
 #include "Server.hpp"
+#include "CommandLineOptions.hpp"
 
 
 #ifdef _WIN32
@@ -17,46 +18,58 @@
 
 int main(int argc, char* argv[])
 {
+	app::cli::OptionName certificates_option('c', "certificates");
+	app::cli::OptionName port_option('p', "port");
+	app::cli::OptionName resources_option('r', "resources");
+
+	app::cli::Options cli_options;
+	bool res = cli_options.parse(argc, argv, {
+		{certificates_option, app::cli::OptionType::ONE_ARGUMENT},
+		{port_option,         app::cli::OptionType::ONE_ARGUMENT},
+		{resources_option,    app::cli::OptionType::ONE_ARGUMENT}
+	});
+	if (res == false)
+	{
+		std::cout << "Command line reading error!" << std::endl;
+		system("pause");
+		return -1;
+	}
+
 	unsigned int argn = 1;
 
+	const std::string* argument = cli_options.getArgument(certificates_option);
 	std::string certs_dir = "";
-	if (argc > argn)
+	bool use_tls = false;
+	if (argument != nullptr)
 	{
-		certs_dir += argv[argn];
+		use_tls = true;
+		certs_dir = *argument;
 		if (certs_dir.size() && (certs_dir[certs_dir.size() - 1] != '/')) certs_dir += '/';
 	}
-	argn++;
 
+	argument = cli_options.getArgument(port_option);
+	int port = -1;
+	if (argument != nullptr)
+		try
+		{
+			port = std::stoi(*argument);
+		} catch (...) {}
+	if (port == -1)
+		port = (use_tls) ? 443 : 80;
+
+	argument = cli_options.getArgument(resources_option);
 	std::string res_dir = "";
-	if (argc > argn)
+	if (argument != nullptr)
 	{
-		res_dir += argv[argn];
+		res_dir = *argument;
 		if (res_dir.size() && (res_dir[res_dir.size() - 1] != '/')) res_dir += '/';
 	}
-	argn++;
 
-	int port = -1;
-	if (argc > argn)
-		try
-		{
-			port = std::stoi(std::string(argv[argn]));
-			std::cout << "Port: " << port << std::endl;
-		} catch (...) {}
-	argn++;
-
-	while (port < 0)
+	if (!use_tls)
 	{
-		std::cout << "Enter the port: ";
-		std::string port_s;
-		std::cin >> port_s;
-		try
-		{
-			port = std::stoi(port_s);
-		}
-		catch (...)
-		{
-			std::cout << "Unexpected character!" << std::endl;
-		}
+		std::cout << "Server does not support running without TLS certificates!" << std::endl;
+		system("pause");
+		return -2;
 	}
 
 	app::Server server(certs_dir, res_dir);
@@ -67,7 +80,7 @@ int main(int argc, char* argv[])
 		std::cout << "Server start incompleted: " << init_status << std::endl;
 		return 0;
 	}
-	std::cout << "Server start completed\n------------------------------------------------------------------------------------------\n";
+	std::cout << "Server start completed on port " << port << " " << (use_tls ? "with" : "without") << " TLS" << "\n------------------------------------------------\n";
 
 	Timer timer;
 	while(true)

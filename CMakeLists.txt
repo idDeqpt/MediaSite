@@ -32,8 +32,9 @@ FetchContent_MakeAvailable(wolfssl)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/tools.cpp
-    src/Server.cpp)
+    src/CommandLineOptions.cpp
+    src/Server.cpp
+    src/tools.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE network)
 target_link_libraries(${PROJECT_NAME} PRIVATE wolfssl)

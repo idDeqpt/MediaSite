@@ -1,1 +1,1 @@
-start "web server" ".\bin\Debug\messenger_server.exe" "certs/" "src/resources/" 443
+start "web server" ".\bin\Debug\messenger_server.exe" -c "certs/" -r "src/resources/" -p 443
