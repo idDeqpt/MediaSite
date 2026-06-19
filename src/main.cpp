@@ -9,15 +9,6 @@
 #include <CLI/CommandLineOptions.hpp>
 
 
-#ifdef _WIN32
-	#define WIN(exp) exp
-	#define NIX(exp)
-#else
-	#define WIN(exp)
-	#define NIX(exp) exp
-#endif
-
-
 int main(int argc, char* argv[])
 {
 	cli::OptionName certificates_option('c', "certificates");
