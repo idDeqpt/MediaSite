@@ -56,13 +56,6 @@ int main(int argc, char* argv[])
 		if (res_dir.size() && (res_dir[res_dir.size() - 1] != '/')) res_dir += '/';
 	}
 
-	if (!use_tls)
-	{
-		std::cout << "Server does not support running without TLS certificates!" << std::endl;
-		system("pause");
-		return -2;
-	}
-
 	net::TCPServer* server = (use_tls) ?
 		new net::WebServerSecure(certs_dir, res_dir) :
 		new net::WebServer(res_dir);
@@ -72,7 +65,7 @@ int main(int argc, char* argv[])
 	if (!server->start())
 	{
 		std::cout << "Server start incompleted! Status: " << init_status << std::endl;
-		return -3;
+		return -2;
 	}
 	std::cout << "Server start completed on port " << port << " " << (use_tls ? "with" : "without") << " TLS" << "\n------------------------------------------------\n";
 
