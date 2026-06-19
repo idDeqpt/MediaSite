@@ -10,7 +10,7 @@ include(FetchContent)
 FetchContent_Declare(
     network
     GIT_REPOSITORY "https://github.com/idDeqpt/Network.git"
-    GIT_TAG 5c9261fa81cd6a9e2f2fde49e835c2d3b151ebba
+    GIT_TAG 3c822f3ef08ea95de3e8e669f9e311432f2708c9
 )
 
 FetchContent_Declare(
@@ -37,11 +37,7 @@ FetchContent_MakeAvailable(network)
 FetchContent_MakeAvailable(CLI)
 FetchContent_MakeAvailable(wolfssl)
 
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-    src/HTTPServer.cpp
-    src/HTTPSServer.cpp
-    src/tools.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE network)
 target_link_libraries(${PROJECT_NAME} PRIVATE CLI)

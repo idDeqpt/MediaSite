@@ -3,11 +3,10 @@
 
 #include <Network/ServerSessionData.hpp>
 #include <Network/Timer.hpp>
+#include <Network/WebServer.hpp>
+#include <Network/WebServerSecure.hpp>
 
 #include <CLI/CommandLineOptions.hpp>
-
-#include "HTTPServer.hpp"
-#include "HTTPSServer.hpp"
 
 
 #ifdef _WIN32
@@ -74,8 +73,8 @@ int main(int argc, char* argv[])
 	}
 
 	net::TCPServer* server = (use_tls) ?
-		new app::HTTPSServer(certs_dir, res_dir) :
-		new app::HTTPServer(res_dir);
+		new net::WebServerSecure(certs_dir, res_dir) :
+		new net::WebServer(res_dir);
 
 	int init_status = server->init(port);
 
