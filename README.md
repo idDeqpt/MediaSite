@@ -4,7 +4,7 @@
 | Название                                       | Предназначение |
 |:-----------------------------------------------|:---------------|
 | [Network](https://github.com/idDeqpt/Network)  | Web сервер     |
-| [CLI](https://github.com/idDeqpt/CLI)          | Взаимодействие с аргументами командной строки |
+| [CLI](https://github.com/idDeqpt/CommandLineInterface)          | Взаимодействие с аргументами командной строки |
 ____
 # Требования
 - CMake 3.14+
