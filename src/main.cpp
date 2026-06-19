@@ -4,9 +4,10 @@
 #include <Network/ServerSessionData.hpp>
 #include <Network/Timer.hpp>
 
+#include <CLI/CommandLineOptions.hpp>
+
 #include "HTTPServer.hpp"
 #include "HTTPSServer.hpp"
-#include "CommandLineOptions.hpp"
 
 
 #ifdef _WIN32
@@ -20,15 +21,15 @@
 
 int main(int argc, char* argv[])
 {
-	app::cli::OptionName certificates_option('c', "certificates");
-	app::cli::OptionName port_option('p', "port");
-	app::cli::OptionName resources_option('r', "resources");
+	cli::OptionName certificates_option('c', "certificates");
+	cli::OptionName port_option('p', "port");
+	cli::OptionName resources_option('r', "resources");
 
-	app::cli::Options cli_options;
+	cli::Options cli_options;
 	bool res = cli_options.parse(argc, argv, {
-		{certificates_option, app::cli::OptionType::ONE_ARGUMENT},
-		{port_option,         app::cli::OptionType::ONE_ARGUMENT},
-		{resources_option,    app::cli::OptionType::ONE_ARGUMENT}
+		{certificates_option, cli::OptionType::ONE_ARGUMENT},
+		{port_option,         cli::OptionType::ONE_ARGUMENT},
+		{resources_option,    cli::OptionType::ONE_ARGUMENT}
 	});
 	if (res == false)
 	{

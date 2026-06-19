@@ -5,6 +5,7 @@
 | Название                                       | Предназначение  |
 |:-----------------------------------------------|:----------------|
 | [Network](https://github.com/idDeqpt/Network)  | TCP сервер      |
+| [CLI](https://github.com/idDeqpt/CLI)          | Взаимодействие с аргументами командной строки |
 | [WolfSSL](https://github.com/wolfSSL/wolfssl)  | TLS подключение |
 ____
 # Требования

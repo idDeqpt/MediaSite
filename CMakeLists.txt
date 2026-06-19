@@ -13,6 +13,12 @@ FetchContent_Declare(
     GIT_TAG 5c9261fa81cd6a9e2f2fde49e835c2d3b151ebba
 )
 
+FetchContent_Declare(
+    CLI
+    GIT_REPOSITORY "https://github.com/idDeqpt/CommandLineInterface.git"
+    GIT_TAG 7a63897b3b96b63574c35b12fd08edbc115c137e
+)
+
 
 set(WOLFSSL_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(WOLFSSL_TESTS    OFF CACHE BOOL "" FORCE)
@@ -28,16 +34,17 @@ FetchContent_Declare(
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared library" FORCE)
 
 FetchContent_MakeAvailable(network)
+FetchContent_MakeAvailable(CLI)
 FetchContent_MakeAvailable(wolfssl)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/CommandLineOptions.cpp
     src/HTTPServer.cpp
     src/HTTPSServer.cpp
     src/tools.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE network)
+target_link_libraries(${PROJECT_NAME} PRIVATE CLI)
 target_link_libraries(${PROJECT_NAME} PRIVATE wolfssl)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
